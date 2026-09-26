@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bananajoes Flugradar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈</text></svg>">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f3f2ee;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --accent: #2a78d6; --accent-ink: #1c5cab;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+  --good: #006300; --good-bg: #0ca30c1f; --bad: #d03b3b;
+  --h1:#cde2fb; --h2:#9ec5f4; --h3:#6da7ec; --h4:#3987e5; --h5:#256abf; --h6:#184f95; --h7:#0d366b;
+  --ht-cheap: #ffffff; --ht-exp: #0b0b0b;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #242422;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --accent: #3987e5; --accent-ink: #86b6ef;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+    --good: #0ca30c; --good-bg: #0ca30c26; --bad: #e66767;
+    --h1:#0d366b; --h2:#104281; --h3:#184f95; --h4:#1c5cab; --h5:#256abf; --h6:#3987e5; --h7:#86b6ef;
+    --ht-cheap: #0b0b0b; --ht-exp: #ffffff;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --surface-2: #242422;
+  --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+  --accent: #3987e5; --accent-ink: #86b6ef;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70;
+  --good: #0ca30c; --good-bg: #0ca30c26; --bad: #e66767;
+  --h1:#0d366b; --h2:#104281; --h3:#184f95; --h4:#1c5cab; --h5:#256abf; --h6:#3987e5; --h7:#86b6ef;
+  --ht-cheap: #0b0b0b; --ht-exp: #ffffff;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 24px 16px 60px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+h1 { font-size: 26px; margin: 0; letter-spacing: -.01em; }
+h2 { font-size: 17px; margin: 0 0 4px; }
+.sub { color: var(--ink-2); font-size: 13px; }
+.muted { color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 18px; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 14px; padding: 7px 13px; border-radius: 8px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.seg.big button { font-size: 15px; padding: 9px 16px; }
+.flabel { font-size: 12px; color: var(--muted); margin-right: 6px; text-transform: uppercase; letter-spacing: .04em; }
+.toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--ink-2); }
+.toggle input { width: 16px; height: 16px; accent-color: var(--accent); }
+select { font: inherit; font-size: 14px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+.theme-btn { border: 1px solid var(--border); background: var(--surface); color: var(--ink-2); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+
+.deals { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.deal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px; }
+.deal.hit { border-color: var(--good); box-shadow: 0 0 0 1px var(--good) inset, var(--shadow); }
+.deal .rank { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.deal .price { font-size: 32px; font-weight: 700; letter-spacing: -.02em; }
+.deal .dates { font-weight: 600; }
+.deal .legs { font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+.deal .cta { margin-top: auto; display: flex; gap: 8px; align-items: center; }
+a.btn { display: inline-block; text-decoration: none; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 8px; text-align: center; }
+a.btn:hover { filter: brightness(1.1); }
+a.lnk { color: var(--accent-ink); text-decoration: none; font-size: 13px; }
+a.lnk:hover { text-decoration: underline; }
+
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 8px 10px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
+td { padding: 11px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+tr.week:hover td { background: var(--surface-2); }
+tr.week { cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.wk { font-weight: 600; white-space: nowrap; }
+.pricecell { min-width: 150px; }
+.bar { position: relative; height: 8px; background: var(--grid); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.bar > i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 0 4px 4px 0; }
+.pbig { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.leg { font-size: 13px; color: var(--ink-2); }
+.leg b { color: var(--ink); font-weight: 600; }
+.tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 5px; background: var(--surface-2); color: var(--ink-2); margin-left: 4px; white-space: nowrap; }
+.tag.best { background: var(--accent); color: #fff; }
+.tag.hit { background: var(--good-bg); color: var(--good); font-weight: 600; }
+.tag.rt { background: transparent; border: 1px solid var(--axis); }
+.delta { font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.delta.down { color: var(--good); } .delta.up { color: var(--bad); }
+.alts td { background: var(--surface-2); padding: 0 10px 12px; }
+.alts table td { border: 0; padding: 5px 8px; font-size: 13px; }
+
+.heat { display: grid; grid-template-columns: 58px repeat(7, 1fr); gap: 3px; }
+.heat .hd { font-size: 12px; color: var(--muted); text-align: center; padding-bottom: 4px; }
+.heat .wl { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; white-space: nowrap; }
+.cell { height: 42px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-variant-numeric: tabular-nums; cursor: pointer; position: relative; }
+.cell .d { font-size: 10px; opacity: .75; }
+.cell.empty { background: transparent; color: var(--muted); cursor: default; }
+.cell.na { background: var(--surface-2); color: var(--muted); cursor: default; }
+.cell.hit::after { content: "●"; position: absolute; top: 1px; right: 4px; font-size: 9px; color: var(--good); }
+.legend { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.legend span.sw { width: 20px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.chart { width: 100%; height: 220px; display: block; }
+.chart text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+.lg { display: flex; gap: 14px; font-size: 13px; color: var(--ink-2); flex-wrap: wrap; }
+.lg i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+#tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.18); z-index: 10; display: none; max-width: 340px; }
+#tip .t { font-weight: 600; margin-bottom: 4px; }
+#tip .r { display: flex; justify-content: space-between; gap: 16px; font-variant-numeric: tabular-nums; }
+
+.two { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr; } .hide-sm { display: none; } }
+.note { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.banner { padding: 10px 14px; border-radius: 10px; font-size: 14px; margin-bottom: 14px; border: 1px solid; }
+.banner.warn { background: #fab2191f; border-color: #fab21966; }
+.banner.error { background: #d03b3b1a; border-color: #d03b3b66; }
+.banner.good { background: var(--good-bg); border-color: var(--good); }
+.fees { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.extra h3 { font-size: 15px; margin: 4px 0 8px; }
+.tscroll { overflow-x: auto; }
+[hidden] { display: none !important; }
+.hdr-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.clock { text-align: right; line-height: 1.3; padding-right: 4px; }
+.clock .now { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.clock .upd { font-size: 12px; color: var(--ink-2); }
+.clock .upd b { color: var(--ink); font-weight: 600; }
+.clock .upd.stale b { color: var(--bad); }
+.clock .upd.run { color: var(--accent-ink); font-weight: 600; }
+.pbar { height: 4px; background: var(--grid); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.pbar > i { display: block; height: 100%; background: var(--accent); border-radius: 2px; transition: width .6s ease; }
+@media (prefers-reduced-motion: reduce) { .pbar > i { transition: none; } }
+#refreshBtn:disabled { opacity: .55; cursor: default; }
+/* Oben: links Reise + Filter, rechts die Suchleiste – genau über der Spalte von „Platz 3“ */
+.topbar { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px 24px; align-items: stretch; margin-bottom: 18px; }
+.topleft { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+.topleft .filters { margin-bottom: 0; }
+.sbar { display: grid; grid-template-columns: minmax(140px, 1.3fr) minmax(128px, 1fr) minmax(128px, 1fr) auto auto; gap: 6px 12px; align-items: end; align-content: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow); }
+.sbar-title { grid-column: 1 / -1; font-size: 13px; font-weight: 600; }
+.sbar label { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sbar .flabel { margin: 0; font-size: 11px; }
+.sbar input, .sbar select { font: inherit; font-size: 13px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 0 8px; height: 32px; width: 100%; min-width: 0; }
+.sbar input[type=number] { width: 48px; flex: none; padding: 0 6px; }
+.sbar .nrange { white-space: nowrap; }
+.sbar .btn-solid { height: 32px; padding: 0 18px; }
+@media (max-width: 1400px) { .sbar { grid-template-columns: repeat(3, minmax(0, 1fr)); } .sbar .btn-solid { grid-column: 3; } }
+@media (max-width: 900px) { .topbar { grid-template-columns: 1fr; } }
+.nrange { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.btn-solid { border: 0; background: var(--accent); color: #fff; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+.btn-solid:hover { filter: brightness(1.1); }
+.seg.lang button { padding: 5px 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 data-i="title"></h1>
+      <div class="sub" id="meta"></div>
+    </div>
+    <div class="hdr-right">
+      <div class="clock"><div class="now" id="now"></div><div class="upd" id="upd"></div></div>
+      <button class="theme-btn" id="refreshBtn" type="button"></button>
+      <span class="seg lang" id="langSeg" role="group" aria-label="Sprache / Language / Idioma"></span>
+      <button class="theme-btn" id="themeBtn" type="button" data-i="theme"></button>
+    </div>
+  </header>
+
+  <div id="banners"></div>
+
+  <div class="topbar">
+    <div class="topleft">
+      <div class="filters">
+        <div class="seg big" id="tripSeg" role="group"></div>
+      </div>
+      <div class="filters">
+        <div><span class="flabel" data-i="nights"></span><span class="seg" id="nightSeg" role="group"></span></div>
+        <div><span class="flabel" data-i="departure"></span><span class="seg" id="daySeg" role="group"></span></div>
+        <label class="toggle"><input type="checkbox" id="direct"> <span data-i="directOnly"></span></label>
+      </div>
+    </div>
+    <form class="sbar" id="searchForm">
+      <div class="sbar-title" data-i="searchTitle"></div>
+      <label><span class="flabel" data-i="sTrip"></span><select id="sTrip"></select></label>
+      <label><span class="flabel" data-i="sDepFrom"></span><input type="date" id="sFrom" required></label>
+      <label><span class="flabel" data-i="sDepTo"></span><input type="date" id="sTo" required></label>
+      <label><span class="flabel" data-i="sNights"></span><span class="nrange"><input type="number" id="sNmin" min="1" max="28"> – <input type="number" id="sNmax" min="1" max="28"></span></label>
+      <button class="btn-solid" type="submit" data-i="searchBtn"></button>
+    </form>
+  </div>
+
+  <div class="deals" id="deals"></div>
+
+  <div class="card" id="searchCard" style="display:none">
+    <div class="card-head">
+      <div><h2 data-i="searchTitle"></h2><div class="sub" id="searchSub"></div></div>
+      <button class="theme-btn" id="searchClose" type="button">✕</button>
+    </div>
+    <div id="searchOut" class="tscroll"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><h2 data-i="weekTitle"></h2><div class="sub" id="weekSub"></div></div>
+    </div>
+    <div class="tscroll"><table>
+      <thead><tr><th data-i="thWeek"></th><th data-i="thDates"></th><th class="pricecell" data-i="thPrice"></th><th class="hide-sm" data-i="thOut"></th><th class="hide-sm" data-i="thRet"></th><th></th></tr></thead>
+      <tbody id="weeks"></tbody>
+    </table></div>
+  </div>
+
+  <div class="card extra" id="extraCard" style="display:none">
+    <div class="card-head"><div><h2 data-i="extraTitle"></h2><div class="sub" data-i="extraSub"></div></div></div>
+    <div id="extra"></div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <div class="card-head">
+        <div><h2 data-i="heatTitle"></h2><div class="sub" data-i="heatSub"></div></div>
+        <div class="legend" id="heatLegend"></div>
+      </div>
+      <div class="heat" id="heat"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div><h2 data-i="histTitle"></h2><div class="sub" data-i="histSub"></div></div>
+        <div class="lg" id="histLegend"></div>
+      </div>
+      <div id="histWrap"></div>
+    </div>
+  </div>
+
+  <div class="card note" id="about"></div>
+</div>
+<div id="tip"></div>
+
+<div id="lock" style="position:fixed;inset:0;z-index:50;background:var(--page);display:flex;align-items:center;justify-content:center;padding:16px">
+  <form id="lockForm" class="card" style="width:100%;max-width:340px;margin:0">
+    <h2 style="margin-bottom:12px">✈ Flugradar</h2>
+    <input type="password" id="lockPw" autocomplete="current-password" required style="width:100%;font:inherit;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink)">
+    <label class="toggle" style="margin:10px 0"><input type="checkbox" id="lockRem" checked> <span id="lockRemTxt"></span></label>
+    <button class="btn-solid" id="lockBtn" type="submit" style="width:100%"></button>
+    <div id="lockErr" class="sub" style="color:var(--bad);margin-top:8px;min-height:1.2em"></div>
+  </form>
+</div>
+<script>
+(async () => {
+  const TX = {
+    de: { pw: 'Passwort', rem: 'Auf diesem Gerät merken', open: 'Öffnen', wrong: 'Falsches Passwort.', load: 'Daten konnten nicht geladen werden.', old: 'Dieser Browser ist zu alt für die verschlüsselte Ansicht.' },
+    en: { pw: 'Password', rem: 'Remember on this device', open: 'Open', wrong: 'Wrong password.', load: 'Could not load the data.', old: 'This browser is too old for the encrypted view.' },
+    es: { pw: 'Contraseña', rem: 'Recordar en este dispositivo', open: 'Abrir', wrong: 'Contraseña incorrecta.', load: 'No se pudieron cargar los datos.', old: 'Este navegador es demasiado antiguo para la vista cifrada.' },
+  };
+  let lg = 'de'; try { lg = localStorage.getItem('fr-lang') || (navigator.language || 'de').slice(0, 2); } catch (e) {}
+  const T = TX[lg] || TX.de;
+  const $ = (id) => document.getElementById(id);
+  $('lockPw').placeholder = T.pw; $('lockRemTxt').textContent = T.rem; $('lockBtn').textContent = T.open;
+  if (!window.crypto || !crypto.subtle || !window.DecompressionStream) { $('lockErr').textContent = T.old; return; }
+  let buf;
+  try { buf = new Uint8Array(await (await fetch('data.bin?t=' + Date.now(), { cache: 'no-store' })).arrayBuffer()); }
+  catch (e) { $('lockErr').textContent = T.load; return; }
+  const SALT = buf.slice(0, 16), IV = buf.slice(16, 28), CT = buf.slice(28);
+  const b64 = (u) => btoa(String.fromCharCode(...new Uint8Array(u)));
+  const unb64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function unlock(key) {
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: IV }, key, CT);
+    const txt = await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    window.FLIGHT_DATA = JSON.parse(txt);
+    $('lock').remove();
+    const s = document.createElement('script'); s.textContent = $('app').textContent; document.body.appendChild(s);
+  }
+  try {  // gemerkter Schluessel (nicht das Passwort)
+    const k = localStorage.getItem('fr-key');
+    if (k) { await unlock(await crypto.subtle.importKey('raw', unb64(k), 'AES-GCM', true, ['decrypt'])); return; }
+  } catch (e) { try { localStorage.removeItem('fr-key'); } catch (e2) {} }
+  $('lockForm').onsubmit = async (e) => {
+    e.preventDefault();
+    $('lockBtn').disabled = true; $('lockErr').textContent = '';
+    try {
+      const base = await crypto.subtle.importKey('raw', new TextEncoder().encode($('lockPw').value), 'PBKDF2', false, ['deriveKey']);
+      const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: SALT, iterations: 600000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+      const remember = $('lockRem').checked;  // vor unlock() lesen - danach ist das Formular weg
+      await crypto.subtle.decrypt({ name: 'AES-GCM', iv: IV }, key, CT);  // wirft bei falschem Passwort
+      if (remember) { try { localStorage.setItem('fr-key', b64(await crypto.subtle.exportKey('raw', key))); } catch (e2) {} }
+      await unlock(key);
+      return;
+    } catch (err) { if (!$('lock')) throw err; $('lockErr').textContent = T.wrong; $('lockBtn').disabled = false; $('lockPw').select(); }
+  };
+  $('lockPw').focus();
+})();
+</script>
+<script type="text/plain" id="app">
+(() => {
+  // ---------- Sprachen
+  const I18N = {
+    de: {
+      locale: 'de-DE', title: '✈ Bananajoes Flugradar', theme: '◐ Hell/Dunkel', noData: 'Noch keine Daten – bitte „Flüge aktualisieren“ auf dem Desktop starten.',
+      nights: 'Nächte', departure: 'Abflug', allDays: 'Alle Tage', thuSat: 'Do–Sa', monWed: 'Mo–Mi',
+      directOnly: 'Nur Direktflüge', weekTitle: 'Günstigste Reise pro Woche',
+      weekSub: (lim) => `Abflugwoche · Hin + Rück inkl. Handgepäck (bis 10 kg) · Preisgrenze ${lim} · Zeile anklicken für Alternativen`,
+      thWeek: 'Woche', thDates: 'Reisezeitraum', thPrice: 'Preis', thOut: 'Hinflug', thRet: 'Rückflug',
+      extraTitle: 'Sonderabfragen', extraSub: 'Zeiträume außerhalb der 4 Monate – in config.json unter „extraSearches“ anpassbar',
+      heatTitle: 'Preiskalender', heatSub: 'Günstigste Reise je Abflugtag · ● = unter Preisgrenze · Klick öffnet die Suche',
+      histTitle: 'Preisverlauf', histSub: 'Günstigste Reise im Vorschau-Zeitraum, Stand je Tag',
+      cheap: 'günstig', expensive: 'teuer', bestDeal: '★ Bester Deal', place: (n) => `Platz ${n}`,
+      nightsN: (n) => n === 1 ? '1 Nacht' : `${n} Nächte`, nShort: (n) => `${n} N.`, out: 'Hin', ret: 'Rück', inTicket: 'im Ticket enthalten', saved: (x) => `${x} gespart`,
+      showFlights: 'Flüge ansehen ↗', view: 'ansehen ↗', more: (n) => `${n} weitere`, cheapestWeek: 'günstigste Woche', under: (x) => `✓ unter ${x}`,
+      rtTicket: 'Hin+Rück-Ticket', twoTickets: '2 Einzeltickets', oneTicket: '1 Ticket', retInTicket: 'Im Ticket enthalten',
+      rtNote: 'Rückflug bei der Buchung wählen – günstigste Option ist eingerechnet', rtSave: (x) => `${x} günstiger als 2 Einzeltickets`,
+      bagIncl: 'Handgepäck inklusive', bag: 'Handgepäck', est: '(geschätzt)', rtSuffix: ' Hin+Rück', outLink: 'Hinflug ↗', retLink: 'Rückflug ↗',
+      direct: 'direkt', stops: (n) => `${n} Stopp`, vsYesterday: 'ggü. Vortag', noTrips: 'Keine Reisen für diese Filter gefunden.', noRows: 'Keine Daten für diese Filter.',
+      extraDep: 'Abflug', extraNone: 'Noch keine Preise – Google zeigt so weit im Voraus evtl. noch nichts an.', wk: 'KW',
+      depOn: (d) => `Abflug ${d}`, cheapest: 'Günstigste', histEmpty: 'Der Verlauf baut sich täglich auf – ab morgen siehst du hier, ob die Preise steigen oder fallen.',
+      asOf: 'Stand', meta: (src, m) => `Quellen: ${src} (Einzel- und Hin+Rück-Tarife) · nächste ${m} Monate`,
+      lastUpd: 'Letzte Aktualisierung', nextUpd: 'nächste', tomorrowAt: (t) => `morgen ${t}`, pending: 'steht aus', snapshot: 'Online-Ansicht – neue Preise täglich um 06:00 (bzw. sobald Bananajoes PC an ist)', reloadBtn: '⟳ Neu laden',
+      refreshBtn: '⟳ Jetzt aktualisieren', refreshRun: '⟳ Aktualisiert …', needServer: 'Aktualisieren geht nur, wenn das Dashboard über die Desktop-Verknüpfung „Flugradar“ geöffnet wurde.',
+      phases: { start: 'Start', probe: 'Vorprüfung', legs: 'Einzelstrecken', rt: 'Hin+Rück-Tarife', ret: 'Rückflüge', publish: 'Online stellen' }, running: (pct, p, n, t) => `Aktualisierung: ${pct} % fertig · ${p}${t ? ` ${n} / ${t}` : ''}`,
+      refreshFail: 'Aktualisierung konnte nicht gestartet werden.',
+      searchTitle: 'Eigene Suche', searchSub: (d) => `Sucht in den Daten der letzten Aktualisierung (${d}) – keine neuen Abfragen`,
+      sTrip: 'Reise', sDepFrom: 'Reise von', sDepTo: 'Reise bis', sNights: 'Nächte (optional)', any: 'egal', searchBtn: 'Suchen',
+      searchNone: 'Keine passenden Reisen in den vorhandenen Daten.', searchCount: (n, a, b) => `${b} · günstigste Reise je Abflugtag (${n} Tage, ${a} mögliche Reisen)`, sortDate: 'nach Datum', sortPrice: 'nach Preis', cheapestAll: 'günstigste',
+      searchHint: 'Hin+Rück-Tickets gibt es nur für die Termine, die beim Update geprüft wurden; sonst zählen Einzeltickets.',
+      errBanner: (t, msg, d) => `⛔ <b>Letzter Abruf fehlgeschlagen</b> (${t}): ${msg} Angezeigt werden die Preise vom ${d}.`,
+      oldBanner: (n) => `⚠ Die Preise sind ${n} Tage alt – der tägliche Abruf lief nicht. „Flüge aktualisieren“ auf dem Desktop holt neue Preise.`,
+      alertBanner: '🔔 <b>Preisalarm:</b>', alertItem: (l, n, lim, min) => `${l}: ${n}× unter ${lim}, ab ${min}`, barTitle: 'im Vergleich zu den anderen Wochen',
+      about: () => `<b>So wird gerechnet:</b> Pro Reise vergleicht der Radar zwei Varianten und zeigt die günstigere: <b>2 Einzeltickets</b> (Hin- und Rückflug frei kombiniert, auch verschiedene Airlines) und das <b>Hin+Rück-Ticket</b> einer Airline (für die besten Termine jeder Woche abgefragt, oft günstiger z.&nbsp;B. bei Austrian).
+        Alle Preise für 1 Person, Economy, in EUR, inkl. 1 Handgepäckstück: Google Flights rechnet dafür die echten Gepäckgebühren der Airline ein (z.&nbsp;B. den Aufpreis bei Eurowings Basic).
+        Beim Hin+Rück-Ticket wird für die besten Termine jeder Woche auch der konkrete Rückflug abgefragt; bei den übrigen steht „Rückflug bei der Buchung wählen“.
+        Nachtverbindungen und Verbindungen über 10 h Reisezeit werden nie angezeigt. Preise können sich bis zur Buchung ändern – vor dem Buchen immer über „ansehen ↗“ prüfen.
+        Bei 2 Einzeltickets gilt: Fällt ein Flug aus, ist der andere nicht automatisch mit abgesichert.`,
+    },
+    en: {
+      locale: 'en-GB', title: '✈ Bananajoe’s Flight Radar', theme: '◐ Light/Dark', noData: 'No data yet – please run “Fluege aktualisieren” on the desktop.',
+      nights: 'Nights', departure: 'Departure', allDays: 'All days', thuSat: 'Thu–Sat', monWed: 'Mon–Wed',
+      directOnly: 'Direct flights only', weekTitle: 'Cheapest trip per week',
+      weekSub: (lim) => `Departure week · return trip incl. cabin bag (up to 10 kg) · price limit ${lim} · click a row for alternatives`,
+      thWeek: 'Week', thDates: 'Travel dates', thPrice: 'Price', thOut: 'Outbound', thRet: 'Return',
+      extraTitle: 'Special searches', extraSub: 'Dates beyond the 4 months – edit them in config.json under “extraSearches”',
+      heatTitle: 'Price calendar', heatSub: 'Cheapest trip per departure day · ● = below price limit · click opens the search',
+      histTitle: 'Price history', histSub: 'Cheapest trip in the preview period, as of each day',
+      cheap: 'cheap', expensive: 'expensive', bestDeal: '★ Best deal', place: (n) => `#${n}`,
+      nightsN: (n) => n === 1 ? '1 night' : `${n} nights`, nShort: (n) => `${n} n.`, out: 'Out', ret: 'Back', inTicket: 'included in ticket', saved: (x) => `${x} saved`,
+      showFlights: 'View flights ↗', view: 'view ↗', more: (n) => `${n} more`, cheapestWeek: 'cheapest week', under: (x) => `✓ under ${x}`,
+      rtTicket: 'Return ticket', twoTickets: '2 one-way tickets', oneTicket: '1 ticket', retInTicket: 'Included in ticket',
+      rtNote: 'Choose the return flight when booking – the cheapest option is included', rtSave: (x) => `${x} cheaper than 2 one-way tickets`,
+      bagIncl: 'cabin bag included', bag: 'cabin bag', est: '(estimated)', rtSuffix: ' return', outLink: 'Outbound ↗', retLink: 'Return ↗',
+      direct: 'direct', stops: (n) => `${n} stop`, vsYesterday: 'vs. yesterday', noTrips: 'No trips found for these filters.', noRows: 'No data for these filters.',
+      extraDep: 'Departure', extraNone: 'No prices yet – Google may not show fares this far ahead.', wk: 'Wk',
+      depOn: (d) => `Departure ${d}`, cheapest: 'Cheapest', histEmpty: 'The history builds up daily – from tomorrow you’ll see whether prices rise or fall.',
+      asOf: 'As of', meta: (src, m) => `Sources: ${src} (one-way and return fares) · next ${m} months`,
+      lastUpd: 'Last update', nextUpd: 'next', tomorrowAt: (t) => `tomorrow ${t}`, pending: 'pending', snapshot: 'Online view – new prices daily at 06:00 (or as soon as Bananajoe’s PC is on)', reloadBtn: '⟳ Reload',
+      refreshBtn: '⟳ Update now', refreshRun: '⟳ Updating …', needServer: 'Updating only works when the dashboard was opened via the “Flugradar” desktop shortcut.',
+      phases: { start: 'start', probe: 'pre-check', legs: 'one-way fares', rt: 'return fares', ret: 'return flights', publish: 'publishing online' }, running: (pct, p, n, t) => `Update: ${pct} % done · ${p}${t ? ` ${n} / ${t}` : ''}`,
+      refreshFail: 'The update could not be started.',
+      searchTitle: 'Custom search', searchSub: (d) => `Searches the data of the last update (${d}) – no new queries`,
+      sTrip: 'Trip', sDepFrom: 'Trip from', sDepTo: 'Trip until', sNights: 'Nights (optional)', any: 'any', searchBtn: 'Search',
+      searchNone: 'No matching trips in the available data.', searchCount: (n, a, b) => `${b} · cheapest trip per departure day (${n} days, ${a} possible trips)`, sortDate: 'by date', sortPrice: 'by price', cheapestAll: 'cheapest',
+      searchHint: 'Return tickets only exist for the dates checked during the update; otherwise one-way tickets count.',
+      errBanner: (t, msg, d) => `⛔ <b>Last update failed</b> (${t}): ${msg} Showing prices from ${d}.`,
+      oldBanner: (n) => `⚠ Prices are ${n} days old – the daily update didn’t run. “Fluege aktualisieren” on the desktop fetches new prices.`,
+      alertBanner: '🔔 <b>Price alert:</b>', alertItem: (l, n, lim, min) => `${l}: ${n}× under ${lim}, from ${min}`, barTitle: 'compared with the other weeks',
+      about: () => `<b>How it’s calculated:</b> For each trip the radar compares two options and shows the cheaper one: <b>2 one-way tickets</b> (outbound and return combined freely, even different airlines) and an airline’s <b>return ticket</b> (checked for the best dates of each week, often cheaper, e.g. with Austrian).
+        All prices for 1 person, economy, in EUR, incl. 1 cabin bag: Google Flights adds the airline’s real bag fees (e.g. the surcharge on Eurowings Basic).
+        For return tickets on the best dates of each week the actual return flight is checked too; for the others it says “choose the return flight when booking”.
+        Overnight connections and connections over 10 h are never shown. Prices can change until booking – always check via “view ↗” before booking.
+        With 2 separate tickets: if one flight is cancelled, the other one is not automatically protected.`,
+    },
+    es: {
+      locale: 'es-ES', title: '✈ Radar de vuelos de Bananajoe', theme: '◐ Claro/Oscuro', noData: 'Aún no hay datos – ejecuta “Fluege aktualisieren” en el escritorio.',
+      nights: 'Noches', departure: 'Salida', allDays: 'Todos', thuSat: 'Jue–Sáb', monWed: 'Lun–Mié',
+      directOnly: 'Solo vuelos directos', weekTitle: 'Viaje más barato por semana',
+      weekSub: (lim) => `Semana de salida · ida y vuelta con equipaje de mano (hasta 10 kg) · límite ${lim} · haz clic en una fila para ver alternativas`,
+      thWeek: 'Semana', thDates: 'Fechas', thPrice: 'Precio', thOut: 'Ida', thRet: 'Vuelta',
+      extraTitle: 'Búsquedas especiales', extraSub: 'Fechas fuera de los 4 meses – se editan en config.json en “extraSearches”',
+      heatTitle: 'Calendario de precios', heatSub: 'Viaje más barato por día de salida · ● = bajo el límite · clic abre la búsqueda',
+      histTitle: 'Evolución de precios', histSub: 'Viaje más barato del periodo, según cada día',
+      cheap: 'barato', expensive: 'caro', bestDeal: '★ Mejor oferta', place: (n) => `Puesto ${n}`,
+      nightsN: (n) => n === 1 ? '1 noche' : `${n} noches`, nShort: (n) => `${n} n.`, out: 'Ida', ret: 'Vuelta', inTicket: 'incluida en el billete', saved: (x) => `${x} de ahorro`,
+      showFlights: 'Ver vuelos ↗', view: 'ver ↗', more: (n) => `${n} más`, cheapestWeek: 'semana más barata', under: (x) => `✓ menos de ${x}`,
+      rtTicket: 'Billete ida y vuelta', twoTickets: '2 billetes de ida', oneTicket: '1 billete', retInTicket: 'Incluida en el billete',
+      rtNote: 'La vuelta se elige al reservar – la opción más barata ya está incluida', rtSave: (x) => `${x} más barato que 2 billetes de ida`,
+      bagIncl: 'equipaje de mano incluido', bag: 'equipaje de mano', est: '(estimado)', rtSuffix: ' ida y vuelta', outLink: 'Ida ↗', retLink: 'Vuelta ↗',
+      direct: 'directo', stops: (n) => `${n} escala`, vsYesterday: 'vs. ayer', noTrips: 'No hay viajes con estos filtros.', noRows: 'No hay datos con estos filtros.',
+      extraDep: 'Salida', extraNone: 'Aún no hay precios – puede que Google no muestre tarifas con tanta antelación.', wk: 'Sem.',
+      depOn: (d) => `Salida ${d}`, cheapest: 'Más barato', histEmpty: 'El historial se completa cada día – a partir de mañana verás si los precios suben o bajan.',
+      asOf: 'Fecha', meta: (src, m) => `Fuentes: ${src} (tarifas de ida e ida y vuelta) · próximos ${m} meses`,
+      lastUpd: 'Última actualización', nextUpd: 'próxima', tomorrowAt: (t) => `mañana ${t}`, pending: 'pendiente', snapshot: 'Vista online – precios nuevos cada día a las 06:00 (o en cuanto se enciende el PC de Bananajoe)', reloadBtn: '⟳ Recargar',
+      refreshBtn: '⟳ Actualizar ahora', refreshRun: '⟳ Actualizando …', needServer: 'Solo se puede actualizar si el panel se abrió con el acceso directo “Flugradar” del escritorio.',
+      phases: { start: 'inicio', probe: 'comprobación', legs: 'trayectos de ida', rt: 'tarifas ida y vuelta', ret: 'vuelos de vuelta', publish: 'publicando online' }, running: (pct, p, n, t) => `Actualización: ${pct} % · ${p}${t ? ` ${n} / ${t}` : ''}`,
+      refreshFail: 'No se pudo iniciar la actualización.',
+      searchTitle: 'Búsqueda propia', searchSub: (d) => `Busca en los datos de la última actualización (${d}) – sin consultas nuevas`,
+      sTrip: 'Viaje', sDepFrom: 'Viaje desde', sDepTo: 'Viaje hasta', sNights: 'Noches (opcional)', any: 'igual', searchBtn: 'Buscar',
+      searchNone: 'No hay viajes que coincidan en los datos disponibles.', searchCount: (n, a, b) => `${b} · viaje más barato por día de salida (${n} días, ${a} viajes posibles)`, sortDate: 'por fecha', sortPrice: 'por precio', cheapestAll: 'más barato',
+      searchHint: 'Los billetes de ida y vuelta solo existen para las fechas consultadas en la actualización; si no, cuentan los billetes de ida.',
+      errBanner: (t, msg, d) => `⛔ <b>Falló la última actualización</b> (${t}): ${msg} Se muestran los precios del ${d}.`,
+      oldBanner: (n) => `⚠ Los precios tienen ${n} días – la actualización diaria no se ejecutó. “Fluege aktualisieren” en el escritorio trae precios nuevos.`,
+      alertBanner: '🔔 <b>Alerta de precio:</b>', alertItem: (l, n, lim, min) => `${l}: ${n}× menos de ${lim}, desde ${min}`, barTitle: 'comparado con las otras semanas',
+      about: () => `<b>Cómo se calcula:</b> Para cada viaje el radar compara dos opciones y muestra la más barata: <b>2 billetes de ida</b> (ida y vuelta combinadas libremente, incluso con distintas aerolíneas) y el <b>billete de ida y vuelta</b> de una aerolínea (consultado para las mejores fechas de cada semana, a menudo más barato, p. ej. con Austrian).
+        Todos los precios para 1 persona, turista, en EUR, con 1 equipaje de mano: Google Flights suma las tarifas reales de equipaje de la aerolínea (p. ej. el suplemento de Eurowings Basic).
+        En los billetes de ida y vuelta de las mejores fechas de cada semana también se consulta el vuelo de vuelta concreto; en los demás pone “la vuelta se elige al reservar”.
+        Nunca se muestran conexiones nocturnas ni de más de 10 h. Los precios pueden cambiar hasta la reserva – compruébalos siempre con “ver ↗” antes de reservar.
+        Con 2 billetes separados: si se cancela un vuelo, el otro no queda protegido automáticamente.`,
+    },
+  };
+  let lang = 'de';
+  try { const l = localStorage.getItem('fr-lang'); if (I18N[l]) lang = l; } catch (e) {}
+  const L = () => I18N[lang];
+
+  const D = window.FLIGHT_DATA;
+  const $ = (id) => document.getElementById(id);
+  const eur = (v) => v == null ? '–' : new Intl.NumberFormat(L().locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v);
+  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+  const fmt = (s, opt = { weekday: 'short', day: '2-digit', month: '2-digit' }) => parse(s).toLocaleDateString(L().locale, opt);
+  const kw = (dt) => { const d = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())); const day = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return Math.ceil(((d - y0) / 864e5 + 1) / 7); };
+  const monday = (s) => { const d = parse(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); };
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const SERIES = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+  const MAX_MORE = 4;  // höchstens 4 Alternativen pro Woche
+
+  const root = document.documentElement;
+  try { const t = localStorage.getItem('fr-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+  $('themeBtn').onclick = () => {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('fr-theme', root.dataset.theme); } catch (e) {}
+  };
+  $('langSeg').onclick = (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    lang = b.dataset.l;
+    try { localStorage.setItem('fr-lang', lang); } catch (e) {}
+    renderAll();
+  };
+  function renderStatic() {
+    root.lang = lang;
+    document.title = L().title.replace('✈ ', '');
+    document.querySelectorAll('[data-i]').forEach((el) => { el.textContent = L()[el.dataset.i]; });
+    $('langSeg').innerHTML = ['de', 'en', 'es'].map((l) => `<button type="button" data-l="${l}" aria-pressed="${l === lang}">${l.toUpperCase()}</button>`).join('');
+  }
+
+  if (!D || !D.trips) {
+    renderStatic();
+    $('meta').textContent = L().noData;
+    return;
+  }
+
+  // ---------- Zustand
+  const state = { trip: D.trips[0].id, group: 'all', days: 'all', direct: false, open: null };
+  try {
+    const saved = JSON.parse(localStorage.getItem('fr-state2') || '{}');
+    for (const k of ['trip', 'group', 'days', 'direct']) if (k in saved) state[k] = saved[k];
+  } catch (e) {}
+  if (!D.trips.some((t) => t.id === state.trip)) state.trip = D.trips[0].id;
+  const save = () => { try { const { open, ...s } = state; localStorage.setItem('fr-state2', JSON.stringify(s)); } catch (e) {} };
+  const trip = () => D.trips.find((t) => t.id === state.trip);
+  const tLabel = (t) => (t.labels && t.labels[lang]) || t.label;
+  const tDest = (t) => (t.destNames && t.destNames[lang]) || t.destName;
+  const groups = (t) => t.nightGroups || [[t.minNights, t.maxNights]];
+  const groupLabel = (g) => g[0] === g[1] ? `${g[0]}` : `${g[0]}–${g[1]}`;
+  const DAYSETS = { all: null, wknd: [4, 5, 6], wk: [1, 2, 3] };
+
+  // ---------- Rechnen
+  const MAX_MIN = 600;  // Grundregel: keine Nachtverbindung, max. 10 h pro Strecke
+  // direct = nur Direktflüge (Schalter „Nur Direktflüge“ oder die Alternativen in der Wochenliste)
+  const passes = (f, direct = state.direct) => !f.nd && (!f.m || f.m <= MAX_MIN) && (!direct || f.s === 0);
+  const bestOf = (list, direct) => { let b = null; for (const f of list || []) if (passes(f, direct) && (!b || f.b < b.b)) b = f; return b; };
+  const legsFor = (key, d) => (D.legs[key] || {})[d] || [];
+
+  function option(t, d, n, direct = state.direct) {
+    const rd = addDays(d, n);
+    const passes_ = (f) => passes(f, direct);
+    const o = bestOf(t.dest.flatMap((a) => legsFor(`${t.home}-${a}`, d)), direct);
+    const r = bestOf(t.dest.flatMap((a) => legsFor(`${a}-${t.home}`, rd)), direct);
+    let best = o && r ? { kind: 'combo', dep: d, ret: rd, n, o, r, total: o.b + r.b } : null;
+    const combo = best ? best.total : null;
+    for (const a of t.dest) {
+      let x = ((D.rt || {})[t.id] || {})[`${a}|${d}|${rd}`];
+      const okRt = (y) => y && passes_(y) && (!y.r || passes_(y.r));  // bekannter Rückflug muss die Regeln auch erfüllen
+      if (x && !okRt(x)) x = okRt(x.alt) ? x.alt : null;
+      if (x && (!best || x.b < best.total)) best = { kind: 'rt', dep: d, ret: rd, n, x, total: x.b, save: combo != null ? combo - x.b : null };
+    }
+    return best;
+  }
+
+  function options(t, depDays, nights, direct = state.direct) {
+    const days = DAYSETS[state.days];
+    const res = [];
+    for (const d of depDays) {
+      if (days && !days.includes(parse(d).getDay())) continue;
+      for (const n of nights) { const o = option(t, d, n, direct); if (o) res.push(o); }
+    }
+    return res;
+  }
+
+  // Alternativen zur besten Reise einer Woche: nur Direktflüge (Hin und Rück), die günstigsten zuerst,
+  // höchstens ALT_PER_DAY Abflüge pro Tag (die Hauptzeile zählt mit), höchstens MAX_MORE Stück
+  const ALT_PER_DAY = 2;
+  function alternatives(t, best, weekDays) {
+    const isDirect = (a) => a.kind === 'rt' ? a.x.s === 0 && (!a.x.r || a.x.r.s === 0) : a.o.s === 0 && a.r.s === 0;
+    const same = (a) => a.dep === best.dep && a.ret === best.ret;
+    const perDay = { [best.dep]: 1 };
+    const out = [];
+    for (const a of options(t, weekDays, nightsSel(t), true).sort((x, y) => x.total - y.total)) {
+      if (out.length === MAX_MORE) break;
+      if (same(a) || !isDirect(a) || (perDay[a.dep] || 0) >= ALT_PER_DAY) continue;
+      perDay[a.dep] = (perDay[a.dep] || 0) + 1;
+      out.push(a);
+    }
+    return out;
+  }
+
+  const mainDays = () => { const a = []; for (let i = 1; i <= D.horizonDays; i++) a.push(addDays(D.today, i)); return a; };
+  const nightsSel = (t) => {
+    const g = state.group === 'all' ? [t.minNights, t.maxNights] : (groups(t)[state.group] || [t.minNights, t.maxNights]);
+    const a = []; for (let n = g[0]; n <= g[1]; n++) a.push(n); return a;
+  };
+  const isHit = (t, o) => t.alertBelow && o.total <= t.alertBelow;
+
+  // ---------- Bausteine
+  // Google-Flights-Link (Hin+Rück, 1 Handgepäckstück) – gleiches Format wie im Abrufskript
+  const pb = {
+    v: (n) => { const b = []; do { let x = n & 0x7f; n = Math.floor(n / 128); if (n) x |= 0x80; b.push(x); } while (n); return b; },
+    s: (f, str) => { const d = [...new TextEncoder().encode(str)]; return [...pb.v(f << 3 | 2), ...pb.v(d.length), ...d]; },
+    f: (f, d) => [...pb.v(f << 3 | 2), ...pb.v(d.length), ...d],
+    i: (f, n) => [...pb.v(f << 3), ...pb.v(n)],
+  };
+  const tfsLink = (from, to, d1, d2) => {
+    const leg = (a, b, d) => [...pb.s(2, d), ...pb.f(13, pb.s(2, a)), ...pb.f(14, pb.s(2, b))];
+    const info = [...pb.f(3, leg(from, to, d1)), ...pb.f(3, leg(to, from, d2)), ...pb.i(8, 1), ...pb.i(9, 1), ...pb.f(13, [...pb.i(2, 1), ...pb.i(3, 0)]), ...pb.i(19, 1)];
+    return `https://www.google.com/travel/flights?tfs=${encodeURIComponent(btoa(String.fromCharCode(...info)))}&hl=${lang}&gl=DE&curr=EUR`;
+  };
+  const gfRound = (t, o) => o.kind === 'rt' ? o.x.url : tfsLink(t.home, (o.o && o.o.ap) || t.dest[0], o.dep, o.ret);
+  const legTxt = (f) => `<b>${esc(f.dep)}–${esc(f.arr)}</b> ${esc(f.a)}${f.s ? ` <span class="tag">${esc(L().stops(f.s))}${f.via ? ' ' + esc(f.via) : ''}</span>` : ` <span class="tag">${L().direct}</span>`}${f.m > 240 ? ` <span class="tag">${esc(f.dur)}</span>` : ''}`;
+  const bagTxt = (f, what = '') => f.f ? `${eur(f.p)}${what} + ${eur(f.f)} ${L().bag}${f.bk === false ? ' ' + L().est : ''}` : `${eur(f.p)}${what} · ${L().bagIncl}`;
+  const stop = 'onclick="event.stopPropagation()"';
+  const outHtml = (o) => o.kind === 'rt' ? `<div class="leg">${legTxt(o.x)}</div><div class="sub">${bagTxt(o.x, L().rtSuffix)}</div>` : `<div class="leg">${legTxt(o.o)}</div><div class="sub">${bagTxt(o.o)} · <a class="lnk" href="${esc(o.o.url)}" target="_blank" rel="noopener" ${stop}>${L().outLink}</a></div>`;
+  const saveTxt = (o) => o.save > 0 ? `<b style="color:var(--good)">${L().rtSave(eur(o.save))}</b>` : '';
+  const retHtml = (o) => o.kind === 'rt' ? (o.x.r
+    ? `<div class="leg">${legTxt(o.x.r)} <span class="tag rt">${L().oneTicket}</span></div><div class="sub">${L().inTicket}${o.save > 0 ? ' · ' + saveTxt(o) : ''}</div>`
+    : `<div class="leg">${L().retInTicket} <span class="tag rt">${L().oneTicket}</span></div><div class="sub">${L().rtNote}${o.save > 0 ? ', ' + saveTxt(o) : ''}</div>`) : `<div class="leg">${legTxt(o.r)}</div><div class="sub">${bagTxt(o.r)} · <a class="lnk" href="${esc(o.r.url)}" target="_blank" rel="noopener" ${stop}>${L().retLink}</a></div>`;
+  const kindTag = (o) => `<span class="tag rt">${o.kind === 'rt' ? L().rtTicket : L().twoTickets}</span>`;
+
+  const prevPrice = (t, o) => { const p = D.prevTrips && D.prevTrips.trips && D.prevTrips.trips[t.id]; return p ? p[`${o.dep}|${o.n}`] : undefined; };
+  const deltaHtml = (t, o) => {
+    if (state.direct) return '';
+    const p = prevPrice(t, o);
+    if (p == null) return '';
+    const dlt = Math.round(o.total - p);
+    if (!dlt) return `<span class="delta muted">± 0 € ${L().vsYesterday}</span>`;
+    return `<span class="delta ${dlt < 0 ? 'down' : 'up'}">${dlt < 0 ? '▼' : '▲'} ${eur(Math.abs(dlt))} ${L().vsYesterday}</span>`;
+  };
+
+  // ---------- Steuerung
+  function renderControls() {
+    const t = trip();
+    $('tripSeg').innerHTML = D.trips.map((x) => `<button type="button" data-id="${esc(x.id)}" aria-pressed="${x.id === state.trip}">${esc(tLabel(x))}</button>`).join('');
+    $('nightSeg').innerHTML = [['all', `${t.minNights}–${t.maxNights}`], ...groups(t).map((g, i) => [i, groupLabel(g)])]
+      .map(([k, l]) => `<button type="button" data-g="${k}" aria-pressed="${String(state.group) === String(k)}">${l}</button>`).join('');
+    $('daySeg').innerHTML = [['all', L().allDays], ['wknd', L().thuSat], ['wk', L().monWed]].map(([k, l]) => `<button type="button" data-k="${k}" aria-pressed="${state.days === k}">${l}</button>`).join('');
+    $('direct').checked = state.direct;
+  }
+  $('tripSeg').onclick = (e) => { const b = e.target.closest('button'); if (b) { state.trip = b.dataset.id; state.group = 'all'; state.open = null; update(); } };
+  $('nightSeg').onclick = (e) => { const b = e.target.closest('button'); if (b) { state.group = b.dataset.g === 'all' ? 'all' : +b.dataset.g; update(); } };
+  $('daySeg').onclick = (e) => { const b = e.target.closest('button'); if (b) { state.days = b.dataset.k; update(); } };
+  $('direct').onchange = (e) => { state.direct = e.target.checked; update(); };
+  // ---------- Top-Deals
+  function renderDeals(t, opts) {
+    // Top 3: keine überlappenden Reisezeiträume und – wenn möglich – jeweils andere Anzahl Nächte
+    const overlap = (a, b) => a.dep < b.ret && b.dep < a.ret;
+    const sorted = [...opts].sort((a, b) => a.total - b.total);
+    const picks = [];
+    for (const strict of [true, false]) {
+      for (const o of sorted) {
+        if (picks.length === 3) break;
+        if (picks.includes(o) || picks.some((p) => overlap(p, o))) continue;
+        if (strict && picks.some((p) => p.n === o.n)) continue;
+        picks.push(o);
+      }
+    }
+    picks.sort((a, b) => a.total - b.total);
+    $('deals').innerHTML = picks.map((o, i) => `
+      <div class="deal ${isHit(t, o) ? 'hit' : ''}">
+        <div class="rank">${i === 0 ? L().bestDeal : L().place(i + 1)} · ${esc(tDest(t))}${isHit(t, o) ? ` <span class="tag hit">${L().under(eur(t.alertBelow))}</span>` : ''}</div>
+        <div class="price">${eur(o.total)}</div>
+        <div class="dates">${fmt(o.dep)} → ${fmt(o.ret)} · ${L().nightsN(o.n)}</div>
+        <div class="legs">${o.kind === 'rt' ? `${L().out}: ${legTxt(o.x)}<br>${L().ret}: ${o.x.r ? legTxt(o.x.r) : L().inTicket}${o.save > 0 ? ` · ${L().saved(eur(o.save))}` : ''}` : `${L().out}: ${legTxt(o.o)}<br>${L().ret}: ${legTxt(o.r)}`}</div>
+        <div>${kindTag(o)} ${deltaHtml(t, o)}</div>
+        <div class="cta"><a class="btn" href="${esc(gfRound(t, o))}" target="_blank" rel="noopener">${L().showFlights}</a></div>
+      </div>`).join('') || `<div class="card">${L().noTrips}</div>`;
+  }
+
+  // ---------- Wochenliste
+  function renderWeeks(t, opts) {
+    $('weekSub').textContent = L().weekSub(eur(t.alertBelow));
+    const byWeek = new Map();
+    for (const o of opts) { const w = monday(o.dep); if (!byWeek.has(w)) byWeek.set(w, []); byWeek.get(w).push(o); }
+    const weeks = [...byWeek.keys()].sort();
+    const mins = weeks.map((w) => Math.min(...byWeek.get(w).map((o) => o.total)));
+    const lo = Math.min(...mins), hi = Math.max(...mins);
+    $('weeks').innerHTML = weeks.map((w) => {
+      const o = byWeek.get(w).sort((a, b) => a.total - b.total)[0];
+      const weekDays = mainDays().filter((d) => monday(d) === w);
+      const alts = alternatives(t, o, weekDays);
+      const pct = hi > lo ? 12 + 88 * (o.total - lo) / (hi - lo) : 50;
+      const open = state.open === w;
+      const more = alts.length;
+      let row = `<tr class="week" data-w="${w}">
+        <td class="wk">${L().wk} ${kw(parse(w))}<div class="sub">${fmt(w, { day: '2-digit', month: '2-digit' })}–${fmt(addDays(w, 6), { day: '2-digit', month: '2-digit' })}</div></td>
+        <td><b>${fmt(o.dep)} → ${fmt(o.ret)}</b><div class="sub">${L().nightsN(o.n)}${o.total === lo ? `<span class="tag best">${L().cheapestWeek}</span>` : ''}${isHit(t, o) ? `<span class="tag hit">${L().under(eur(t.alertBelow))}</span>` : ''}</div></td>
+        <td class="pricecell"><span class="pbig">${eur(o.total)}</span> ${kindTag(o)}<div>${deltaHtml(t, o)}</div><div class="bar" title="${L().barTitle}"><i style="width:${pct}%"></i></div></td>
+        <td class="hide-sm">${outHtml(o)}</td>
+        <td class="hide-sm">${retHtml(o)}</td>
+        <td class="num"><a class="lnk" href="${esc(gfRound(t, o))}" target="_blank" rel="noopener" ${stop}>${L().view}</a>${more ? `<div class="sub">${open ? '▲' : '▼'} ${L().more(more)}</div>` : ''}</td>
+      </tr>`;
+      if (open && more) {
+        row += `<tr class="alts"><td colspan="6"><table>${alts.map((a) => `
+          <tr><td class="num" style="text-align:left"><b>${eur(a.total)}</b>${isHit(t, a) ? ' <span class="tag hit">✓</span>' : ''}</td><td>${fmt(a.dep)} → ${fmt(a.ret)} (${L().nShort(a.n)})</td>
+          <td class="leg">${L().out} ${legTxt(a.kind === 'rt' ? a.x : a.o)}</td><td class="leg">${a.kind === 'rt' ? (a.x.r ? `${L().ret} ${legTxt(a.x.r)} <span class="tag rt">${L().oneTicket}</span>` : `${L().ret}: ${L().inTicket} <span class="tag rt">${L().oneTicket}</span>`) : L().ret + ' ' + legTxt(a.r)}</td>
+          <td><a class="lnk" href="${esc(gfRound(t, a))}" target="_blank" rel="noopener">↗</a></td></tr>`).join('')}</table></td></tr>`;
+      }
+      return row;
+    }).join('') || `<tr><td colspan="6" class="muted">${L().noRows}</td></tr>`;
+  }
+  $('weeks').onclick = (e) => { const tr = e.target.closest('tr.week'); if (tr) { state.open = state.open === tr.dataset.w ? null : tr.dataset.w; update(); } };
+
+  // ---------- Sonderabfragen
+  function renderExtra(t) {
+    const xs = (D.extraSearches || []).filter((x) => x.trip === t.id);
+    $('extraCard').style.display = xs.length ? '' : 'none';
+    $('extra').innerHTML = xs.map((x) => {
+      const days = []; for (let d = x.depFrom; d <= x.depTo; d = addDays(d, 1)) days.push(d);
+      const ns = []; for (let n = x.minNights; n <= x.maxNights; n++) ns.push(n);
+      const opts = options(t, days, ns).sort((a, b) => a.total - b.total).slice(0, 6);
+      return `<h3>${esc((x.labels && x.labels[lang]) || x.label)} <span class="sub">${L().extraDep} ${fmt(x.depFrom)} – ${fmt(x.depTo)}, ${x.minNights}–${x.maxNights} ${L().nights}</span></h3>
+        <table>${opts.map((o) => `<tr><td class="num" style="text-align:left"><b>${eur(o.total)}</b></td><td>${fmt(o.dep)} → ${fmt(o.ret)} (${L().nShort(o.n)})</td>
+        <td>${outHtml(o)}</td><td>${retHtml(o)}</td><td><a class="lnk" href="${esc(gfRound(t, o))}" target="_blank" rel="noopener">${L().view}</a></td></tr>`).join('')
+        || `<tr><td class="muted">${L().extraNone}</td></tr>`}</table>`;
+    }).join('');
+  }
+
+  // ---------- Preiskalender
+  const HEAT = ['--h7', '--h6', '--h5', '--h4', '--h3', '--h2', '--h1'];
+  function renderHeat(t, opts) {
+    const byDay = new Map();
+    for (const o of opts) { const c = byDay.get(o.dep); if (!c || o.total < c.total) byDay.set(o.dep, o); }
+    const vals = [...byDay.values()].map((o) => o.total).sort((a, b) => a - b);
+    const cuts = [1, 2, 3, 4, 5, 6].map((i) => vals[Math.min(vals.length - 1, Math.floor(i / 7 * vals.length))]);
+    const bucket = (v) => { let i = 0; while (i < cuts.length && v > cuts[i]) i++; return i; };
+    const days = mainDays();
+    let cur = monday(days[0]);
+    const last = days[days.length - 1];
+    const wdNames = [0, 1, 2, 3, 4, 5, 6].map((i) => parse(addDays(cur, i)).toLocaleDateString(L().locale, { weekday: 'short' }));
+    let html = '<div></div>' + wdNames.map((d) => `<div class="hd">${d}</div>`).join('');
+    while (cur <= last) {
+      html += `<div class="wl">${L().wk} ${kw(parse(cur))}</div>`;
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(cur, i), o = byDay.get(d), dn = parse(d);
+        const lbl = `${dn.getDate()}.${dn.getMonth() + 1}.`;
+        if (d <= D.today || d > last) html += `<div class="cell empty"><span class="d">${lbl}</span></div>`;
+        else if (!o) html += `<div class="cell na"><span class="d">${lbl}</span>–</div>`;
+        else {
+          const b = bucket(o.total);
+          html += `<div class="cell ${isHit(t, o) ? 'hit' : ''}" data-d="${d}" style="background:var(${HEAT[b]});color:var(${b <= 2 ? '--ht-cheap' : '--ht-exp'})"><span class="d">${lbl}</span>${Math.round(o.total)}</div>`;
+        }
+      }
+      cur = addDays(cur, 7);
+    }
+    $('heat').innerHTML = html;
+    $('heatLegend').innerHTML = `${L().cheap} ${HEAT.map((h) => `<span class="sw" style="background:var(${h})"></span>`).join('')} ${L().expensive}`;
+    $('heat').onmousemove = (e) => {
+      const c = e.target.closest('.cell[data-d]');
+      if (!c) return hideTip();
+      const d = c.dataset.d;
+      const rows = groups(t).map((g) => {
+        let b = null;
+        for (let n = g[0]; n <= g[1]; n++) { const o = option(t, d, n); if (o && (!b || o.total < b.total)) b = o; }
+        return `<div class="r"><span>${groupLabel(g)} ${L().nights}${b ? ` → ${fmt(b.ret)}${g[0] !== g[1] ? ` (${b.n})` : ''}` : ''}</span><b>${b ? eur(b.total) : '–'}</b></div>`;
+      }).join('');
+      const o = byDay.get(d);
+      const f = o.kind === 'rt' ? o.x : o.o;
+      showTip(e, `<div class="t">${L().depOn(fmt(d, { weekday: 'long', day: '2-digit', month: 'long' }))}</div>${rows}<div class="sub" style="margin-top:6px">${L().cheapest}: ${esc(f.a)} ${esc(f.dep)} · ${o.kind === 'rt' ? L().rtTicket : L().twoTickets}</div>`);
+    };
+    $('heat').onmouseleave = hideTip;
+    $('heat').onclick = (e) => {
+      const c = e.target.closest('.cell[data-d]');
+      if (!c) return;
+      const a = document.createElement('a');  // echter Link statt window.open (klappt auch in der Online-Ansicht)
+      a.href = gfRound(t, byDay.get(c.dataset.d)); a.target = '_blank'; a.rel = 'noopener';
+      a.click();
+    };
+  }
+
+  // ---------- Preisverlauf
+  function renderHistory() {
+    const days = Object.keys(D.history || {}).sort().slice(-180);
+    const field = state.direct ? 'minDirect' : 'min';
+    $('histLegend').innerHTML = D.trips.map((t, i) => `<span><i style="background:${SERIES[i % 3]}"></i>${esc(tLabel(t))}</span>`).join('');
+    const series = D.trips.map((t) => days.map((d) => (D.history[d][t.id] || {})[field] ?? null));
+    if (days.length < 2) {
+      $('histWrap').innerHTML = `<div class="sub" style="padding:14px 0">${L().histEmpty}</div>` +
+        D.trips.map((t, i) => `<div style="font-size:14px;margin:6px 0"><i style="display:inline-block;width:10px;height:10px;border-radius:5px;background:${SERIES[i % 3]};margin-right:8px"></i>${esc(tLabel(t))}: <b>${eur(series[i][series[i].length - 1])}</b></div>`).join('');
+      return;
+    }
+    const W = 520, H = 220, Lp = 46, R = 12, T = 12, B = 26;
+    const all = series.flat().filter((v) => v != null);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    const pad = Math.max(10, (hi - lo) * 0.15); lo = Math.max(0, lo - pad); hi += pad;
+    const x = (i) => Lp + (W - Lp - R) * i / (days.length - 1);
+    const y = (v) => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+    let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+    for (let i = 0; i <= 4; i++) { const v = lo + (hi - lo) * i / 4; svg += `<line x1="${Lp}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${Lp - 6}" y="${y(v) + 4}" text-anchor="end">${Math.round(v)} €</text>`; }
+    const step = Math.max(1, Math.ceil(days.length / 6));
+    days.forEach((d, i) => { if (i % step === 0 || i === days.length - 1) svg += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${fmt(d, { day: '2-digit', month: '2-digit' })}</text>`; });
+    D.trips.forEach((t) => { if (t.alertBelow && t.alertBelow > lo && t.alertBelow < hi) svg += `<line x1="${Lp}" x2="${W - R}" y1="${y(t.alertBelow)}" y2="${y(t.alertBelow)}" stroke="var(--good)" stroke-dasharray="4 4"/>`; });
+    series.forEach((s, si) => {
+      let p = ''; s.forEach((v, i) => { if (v != null) p += `${p ? 'L' : 'M'}${x(i)},${y(v)}`; });
+      svg += `<path d="${p}" fill="none" stroke="${SERIES[si % 3]}" stroke-width="2" stroke-linejoin="round"/>`;
+      const li = s.length - 1;
+      if (s[li] != null) svg += `<circle cx="${x(li)}" cy="${y(s[li])}" r="4" fill="${SERIES[si % 3]}" stroke="var(--surface)" stroke-width="2"/>`;
+    });
+    svg += `<line id="xh" y1="${T}" y2="${H - B}" stroke="var(--axis)" style="display:none"/><rect x="${Lp}" y="${T}" width="${W - Lp - R}" height="${H - T - B}" fill="transparent" id="hitbox"/></svg>`;
+    $('histWrap').innerHTML = svg;
+    const sv = $('histWrap').querySelector('svg');
+    sv.querySelector('#hitbox').onmousemove = (e) => {
+      const bb = sv.getBoundingClientRect();
+      const i = Math.max(0, Math.min(days.length - 1, Math.round(((e.clientX - bb.left) / bb.width * W - Lp) / (W - Lp - R) * (days.length - 1))));
+      const xh = sv.querySelector('#xh'); xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.style.display = '';
+      showTip(e, `<div class="t">${L().asOf} ${fmt(days[i], { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>` + D.trips.map((t, si) => `<div class="r"><span><i style="display:inline-block;width:8px;height:8px;border-radius:4px;background:${SERIES[si % 3]};margin-right:6px"></i>${esc(tLabel(t))}</span><b>${eur(series[si][i])}</b></div>`).join(''));
+    };
+    sv.querySelector('#hitbox').onmouseleave = () => { sv.querySelector('#xh').style.display = 'none'; hideTip(); };
+  }
+
+  const tip = $('tip');
+  function showTip(e, html) {
+    tip.innerHTML = html; tip.style.display = 'block';
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let l = e.clientX + 14, t = e.clientY + 14;
+    if (l + w > innerWidth - 8) l = e.clientX - w - 14;
+    if (t + h > innerHeight - 8) t = e.clientY - h - 14;
+    tip.style.left = l + 'px'; tip.style.top = t + 'px';
+  }
+  function hideTip() { tip.style.display = 'none'; }
+
+  // ---------- Kopf, Hinweise, Erklärung
+  function renderMeta() {
+    const g = new Date(D.generated);
+    $('meta').innerHTML = esc(L().meta(D.sources.join(', '), Math.round(D.horizonDays / 30)));
+    renderClock();
+    const b = [];
+    const st = D.status || { level: 'ok', messages: [] };
+    if (st.level === 'error') b.push(`<div class="banner error">${L().errBanner(new Date(D.lastAttempt).toLocaleString(L().locale), esc(st.messages[0] || ''), g.toLocaleDateString(L().locale))}</div>`);
+    else if (st.messages && st.messages.length) b.push(`<div class="banner warn">⚠ ${st.messages.map(esc).join('<br>')}</div>`);
+    const ageH = (Date.now() - g) / 36e5;
+    if (ageH > 36 && st.level !== 'error') b.push(`<div class="banner warn">${L().oldBanner(Math.round(ageH / 24))}</div>`);
+    const hits = D.trips.map((t) => [t, (D.alerts || []).filter((a) => a.trip === t.id)]).filter(([, a]) => a.length);
+    if (hits.length) b.push(`<div class="banner good">${L().alertBanner} ${hits.map(([t, a]) => esc(L().alertItem(tLabel(t), a.length, eur(t.alertBelow), eur(Math.min(...a.map((x) => x.price)))))).join(' · ')}</div>`);
+    $('banners').innerHTML = b.join('');
+    $('about').innerHTML = L().about();
+  }
+
+  function update() {
+    save();
+    renderControls();
+    const t = trip();
+    const opts = options(t, mainDays(), nightsSel(t));
+    renderDeals(t, opts);
+    renderWeeks(t, opts);
+    renderExtra(t);
+    renderHeat(t, opts);
+    renderHistory();
+  }
+  // ---------- Uhr + letzte Aktualisierung (oben rechts)
+  function renderClock() {
+    const now = new Date(), g = new Date(D.generated), loc = L().locale;
+    const hm = { hour: '2-digit', minute: '2-digit' };
+    $('now').textContent = now.toLocaleTimeString(loc, hm);
+    const mins = Math.round((now - g) / 6e4);
+    const rtf = new Intl.RelativeTimeFormat(loc, { numeric: 'auto', style: 'short' });
+    const rel = mins < 60 ? rtf.format(-mins, 'minute') : mins < 48 * 60 ? rtf.format(-Math.round(mins / 60), 'hour') : rtf.format(-Math.round(mins / 1440), 'day');
+    const sameDay = g.toDateString() === now.toDateString();
+    const abs = sameDay ? g.toLocaleTimeString(loc, hm) : g.toLocaleString(loc, { day: '2-digit', month: '2-digit', ...hm });
+    const next = sameDay ? L().tomorrowAt(new Date(2000, 0, 1, 6, 0).toLocaleTimeString(loc, hm)) : L().pending;
+    if (job && job.running) return renderRefresh();  // während der Aktualisierung steht dort der Fortschritt
+    $('upd').className = 'upd' + (mins > 36 * 60 ? ' stale' : '');
+    $('upd').innerHTML = `${L().lastUpd}: <b>${abs}</b> (${rel})<br>${ONLINE ? L().snapshot : `${L().nextUpd}: ${next}`}`;
+  }
+  setInterval(renderClock, 15000);
+
+  // ---------- Eigene Suche (nur in den vorhandenen Daten, keine neuen Abfragen)
+  let srch = null;
+  function renderSearchForm() {
+    const g = new Date(D.generated);
+    $('searchSub').textContent = L().searchSub(g.toLocaleString(L().locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }));
+    const cur = $('sTrip').value || state.trip;
+    $('sTrip').innerHTML = D.trips.map((t) => `<option value="${esc(t.id)}" ${t.id === cur ? 'selected' : ''}>${esc(tLabel(t))}</option>`).join('');
+    const min = addDays(D.today, 1), max = addDays(D.today, D.horizonDays);
+    $('sFrom').min = min; $('sFrom').max = max;  // Hinflug im Vorschau-Zeitraum
+    $('sTo').min = addDays(min, 1); $('sTo').max = addDays(max, Math.max(...D.trips.map((t) => t.maxNights)));  // Rückflug auch danach
+    if (!$('sFrom').value) { $('sFrom').value = min; $('sTo').value = addDays(D.today, 14); }
+    $('sNmin').placeholder = L().any; $('sNmax').placeholder = L().any;  // Nächte optional
+  }
+  $('searchForm').onsubmit = (e) => {
+    e.preventDefault();
+    let a = $('sFrom').value, b = $('sTo').value;
+    let n1 = $('sNmin').value === '' ? 1 : +$('sNmin').value;   // leer = beliebig
+    let n2 = $('sNmax').value === '' ? 28 : +$('sNmax').value;
+    if (!a || !b) return;
+    if (b < a) [a, b] = [b, a];
+    if (n2 < n1) [n1, n2] = [n2, n1];
+    if (b === a) b = addDays(a, 1);  // mindestens 1 Nacht
+    srch = { trip: $('sTrip').value, a, b, n1: Math.max(1, n1), n2: Math.min(28, n2), sort: srch ? srch.sort : 'date' };
+    renderSearch();
+    $('searchCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+  $('searchClose').onclick = () => { srch = null; renderSearch(); };
+  $('searchOut').onclick = (e) => { const b = e.target.closest('#sSort button'); if (b && srch) { srch.sort = b.dataset.s; renderSearch(); } };
+  function renderSearch() {
+    $('searchCard').style.display = srch ? '' : 'none';
+    if (!srch) { $('searchOut').innerHTML = ''; return; }
+    const t = D.trips.find((x) => x.id === srch.trip);
+    // Ganze Reise im Zeitraum: Hinflug ab srch.a, Rückflug spätestens srch.b (Wochentag-Filter oben gilt hier nicht)
+    const all = [];
+    for (let d = srch.a; d < srch.b; d = addDays(d, 1)) {
+      for (let n = srch.n1; n <= srch.n2 && addDays(d, n) <= srch.b; n++) { const o = option(t, d, n); if (o) all.push(o); }
+    }
+    const byDay = new Map();
+    for (const o of all) { const c = byDay.get(o.dep); if (!c || o.total < c.total) byDay.set(o.dep, o); }
+    const top = [...byDay.values()].sort(srch.sort === 'price' ? (x, y) => x.total - y.total : (x, y) => (x.dep < y.dep ? -1 : 1));
+    const low = Math.min(...top.map((o) => o.total));
+    const sortBtns = `<span class="seg" id="sSort" style="margin-left:8px">${[['date', L().sortDate], ['price', L().sortPrice]].map(([k, l]) => `<button type="button" data-s="${k}" aria-pressed="${srch.sort === k}">${l}</button>`).join('')}</span>`;
+    $('searchOut').innerHTML = top.length ? `<div class="sub" style="margin-bottom:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px">${esc(L().searchCount(top.length, all.length, `${fmt(srch.a)} – ${fmt(srch.b)}`))}${sortBtns}</div>
+      <table>${top.map((o) => `<tr><td class="num" style="text-align:left"><b>${eur(o.total)}</b>${o.total === low ? ` <span class="tag best">${L().cheapestAll}</span>` : ''}${isHit(t, o) ? ' <span class="tag hit">✓</span>' : ''}<div>${kindTag(o)}</div></td>
+        <td>${fmt(o.dep)} → ${fmt(o.ret)}<div class="sub">${L().nightsN(o.n)}</div></td>
+        <td class="hide-sm">${outHtml(o)}</td><td class="hide-sm">${retHtml(o)}</td>
+        <td><a class="lnk" href="${esc(gfRound(t, o))}" target="_blank" rel="noopener">${L().view}</a></td></tr>`).join('')}</table>
+      <div class="note" style="margin-top:8px">${L().searchHint}</div>` : `<div class="muted">${L().searchNone}</div>`;
+  }
+
+  // ---------- Aktualisieren per Klick (nur über den lokalen Flugradar-Dienst)
+  const API = ['localhost', '127.0.0.1'].includes(location.hostname);  // lokaler Flugradar-Dienst
+  const ONLINE = location.protocol.startsWith('http') && !API;           // Online-Kopie (Momentaufnahme)
+  let job = null;  // letzter Status vom Dienst
+  function renderRefresh() {
+    const btn = $('refreshBtn');
+    const run = job && job.running;
+    btn.textContent = ONLINE ? L().reloadBtn : run ? L().refreshRun : L().refreshBtn;  // online: neueste hochgeladene Daten laden
+    btn.disabled = !!run;
+    btn.title = API ? '' : ONLINE ? L().snapshot : L().needServer;
+    if (run) {
+      const p = job.progress || {};
+      const pct = progressPct(p);
+      $('upd').className = 'upd run';
+      $('upd').innerHTML = `${esc(L().running(pct, L().phases[p.phase] || L().phases.start, p.n || 0, p.total || 0))}<div class="pbar"><i style="width:${pct}%"></i></div>`;
+    }
+  }
+  // Gesamtfortschritt in %: jede Phase hat ihren Anteil an der Gesamtdauer (gemessen an einem vollen Abruf)
+  const PHASE_SPAN = { start: [0, 0], probe: [0, 1], legs: [1, 47], rt: [47, 86], ret: [86, 99], publish: [99, 100], done: [100, 100] };
+  function progressPct(p) {
+    const [a, b] = PHASE_SPAN[p.phase] || [0, 0];
+    const f = p.total ? Math.min(1, (p.n || 0) / p.total) : 0;
+    return Math.round(a + (b - a) * f);
+  }
+  async function poll() {
+    if (!API) return;
+    try {
+      const r = await fetch('/api/status', { cache: 'no-store' });
+      const s = await r.json();
+      const wasRunning = job && job.running;
+      job = s;
+      if (s.generated && s.generated !== D.generated && !s.running) return location.reload();
+      if (wasRunning && !s.running) return location.reload();
+      if (!s.running) renderClock();
+      renderRefresh();
+    } catch (e) { /* Dienst beendet – Seite funktioniert weiter mit den geladenen Daten */ }
+    setTimeout(poll, job && job.running ? 4000 : 30000);
+  }
+  $('refreshBtn').onclick = async () => {
+    if (ONLINE) { location.reload(); return; }
+    if (!API) { alert(L().needServer); return; }
+    try {
+      const r = await fetch('/api/refresh', { method: 'POST', headers: { 'X-Flugradar': '1' } });
+      if (r.status !== 202 && r.status !== 409) throw new Error(r.status);
+      job = { running: true, progress: { phase: 'start' } };
+      renderRefresh();
+      setTimeout(poll, 3000);
+    } catch (e) { alert(L().refreshFail); }
+  };
+
+  function renderAll() { renderStatic(); renderMeta(); update(); renderSearchForm(); renderSearch(); renderRefresh(); }
+  renderAll();
+  poll();
+})();
+</script>
+</body>
+</html>
