@@ -1,0 +1,121 @@
+diff --git a/xPFM04ys64/index.html b/xPFM04ys64/index.html
+index c68a78e..26b8ef7 100644
+--- a/xPFM04ys64/index.html
++++ b/xPFM04ys64/index.html
+@@ -156,11 +156,9 @@ tr.week { cursor: pointer; }
+ .sbar .flabel { margin: 0; font-size: 11px; }
+ .sbar input, .sbar select { font: inherit; font-size: 13px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 0 8px; height: 32px; width: 100%; min-width: 0; }
+ .sbar input[type=number] { width: 48px; flex: none; padding: 0 6px; }
+-.sbar .nrange { white-space: nowrap; }
+ .sbar .btn-solid { height: 32px; padding: 0 18px; }
+ @media (max-width: 1400px) { .sbar { grid-template-columns: repeat(3, minmax(0, 1fr)); } .sbar .btn-solid { grid-column: 3; } }
+ @media (max-width: 900px) { .topbar { grid-template-columns: 1fr; } }
+-.nrange { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+ .btn-solid { border: 0; background: var(--accent); color: #fff; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+ .btn-solid:hover { filter: brightness(1.1); }
+ .seg.lang button { padding: 5px 10px; font-size: 13px; }
+@@ -199,7 +197,7 @@ tr.week { cursor: pointer; }
+       <label><span class="flabel" data-i="sTrip"></span><select id="sTrip"></select></label>
+       <label><span class="flabel" data-i="sDepFrom"></span><input type="date" id="sFrom" required></label>
+       <label><span class="flabel" data-i="sDepTo"></span><input type="date" id="sTo" required></label>
+-      <label><span class="flabel" data-i="sNights"></span><span class="nrange"><input type="number" id="sNmin" min="1" max="28"> – <input type="number" id="sNmax" min="1" max="28"></span></label>
++      <label><span class="flabel" data-i="sFlex"></span><select id="sFlex"><option value="0">± 0</option><option value="1">± 1</option><option value="2" selected>± 2</option><option value="3">± 3</option></select></label>
+       <button class="btn-solid" type="submit" data-i="searchBtn"></button>
+     </form>
+   </div>
+@@ -332,8 +330,8 @@ tr.week { cursor: pointer; }
+       phases: { start: 'Start', probe: 'Vorprüfung', legs: 'Einzelstrecken', rt: 'Hin+Rück-Tarife', ret: 'Rückflüge', publish: 'Online stellen' }, running: (pct, p, n, t) => `Aktualisierung: ${pct} % fertig · ${p}${t ? ` ${n} / ${t}` : ''}`,
+       refreshFail: 'Aktualisierung konnte nicht gestartet werden.',
+       searchTitle: 'Eigene Suche', searchSub: (d) => `Sucht in den Daten der letzten Aktualisierung (${d}) – keine neuen Abfragen`,
+-      sTrip: 'Reise', sDepFrom: 'Reise von', sDepTo: 'Reise bis', sNights: 'Nächte (optional)', any: 'egal', searchBtn: 'Suchen',
+-      searchNone: 'Keine passenden Reisen in den vorhandenen Daten.', searchCount: (n, a, b) => `${b} · günstigste Reise je Abflugtag (${n} Tage, ${a} mögliche Reisen)`, sortDate: 'nach Datum', sortPrice: 'nach Preis', cheapestAll: 'günstigste',
++      sTrip: 'Reise', sDepFrom: 'Hinflug ca.', sDepTo: 'Rückflug ca.', sFlex: 'Spielraum (Tage)', searchBtn: 'Suchen',
++      searchNone: 'Keine Preise für diese Termine in den vorhandenen Daten – evtl. Spielraum vergrößern oder eine Sonderabfrage in config.json anlegen.', searchCount: (n, a, b, c) => `Hin ${a} · Rück ${b} · ${n} günstigste von ${c} möglichen Reisen`, sortDate: 'nach Datum', sortPrice: 'nach Preis', cheapestAll: 'günstigste',
+       searchHint: 'Hin+Rück-Tickets gibt es nur für die Termine, die beim Update geprüft wurden; sonst zählen Einzeltickets.',
+       errBanner: (t, msg, d) => `⛔ <b>Letzter Abruf fehlgeschlagen</b> (${t}): ${msg} Angezeigt werden die Preise vom ${d}.`,
+       oldBanner: (n) => `⚠ Die Preise sind ${n} Tage alt – der tägliche Abruf lief nicht. „Flüge aktualisieren“ auf dem Desktop holt neue Preise.`,
+@@ -368,8 +366,8 @@ tr.week { cursor: pointer; }
+       phases: { start: 'start', probe: 'pre-check', legs: 'one-way fares', rt: 'return fares', ret: 'return flights', publish: 'publishing online' }, running: (pct, p, n, t) => `Update: ${pct} % done · ${p}${t ? ` ${n} / ${t}` : ''}`,
+       refreshFail: 'The update could not be started.',
+       searchTitle: 'Custom search', searchSub: (d) => `Searches the data of the last update (${d}) – no new queries`,
+-      sTrip: 'Trip', sDepFrom: 'Trip from', sDepTo: 'Trip until', sNights: 'Nights (optional)', any: 'any', searchBtn: 'Search',
+-      searchNone: 'No matching trips in the available data.', searchCount: (n, a, b) => `${b} · cheapest trip per departure day (${n} days, ${a} possible trips)`, sortDate: 'by date', sortPrice: 'by price', cheapestAll: 'cheapest',
++      sTrip: 'Trip', sDepFrom: 'Outbound approx.', sDepTo: 'Return approx.', sFlex: 'Flexibility (days)', searchBtn: 'Search',
++      searchNone: 'No prices for these dates in the available data – try more flexibility or add a special search in config.json.', searchCount: (n, a, b, c) => `Out ${a} · back ${b} · ${n} cheapest of ${c} possible trips`, sortDate: 'by date', sortPrice: 'by price', cheapestAll: 'cheapest',
+       searchHint: 'Return tickets only exist for the dates checked during the update; otherwise one-way tickets count.',
+       errBanner: (t, msg, d) => `⛔ <b>Last update failed</b> (${t}): ${msg} Showing prices from ${d}.`,
+       oldBanner: (n) => `⚠ Prices are ${n} days old – the daily update didn’t run. “Fluege aktualisieren” on the desktop fetches new prices.`,
+@@ -404,8 +402,8 @@ tr.week { cursor: pointer; }
+       phases: { start: 'inicio', probe: 'comprobación', legs: 'trayectos de ida', rt: 'tarifas ida y vuelta', ret: 'vuelos de vuelta', publish: 'publicando online' }, running: (pct, p, n, t) => `Actualización: ${pct} % · ${p}${t ? ` ${n} / ${t}` : ''}`,
+       refreshFail: 'No se pudo iniciar la actualización.',
+       searchTitle: 'Búsqueda propia', searchSub: (d) => `Busca en los datos de la última actualización (${d}) – sin consultas nuevas`,
+-      sTrip: 'Viaje', sDepFrom: 'Viaje desde', sDepTo: 'Viaje hasta', sNights: 'Noches (opcional)', any: 'igual', searchBtn: 'Buscar',
+-      searchNone: 'No hay viajes que coincidan en los datos disponibles.', searchCount: (n, a, b) => `${b} · viaje más barato por día de salida (${n} días, ${a} viajes posibles)`, sortDate: 'por fecha', sortPrice: 'por precio', cheapestAll: 'más barato',
++      sTrip: 'Viaje', sDepFrom: 'Ida aprox.', sDepTo: 'Vuelta aprox.', sFlex: 'Margen (días)', searchBtn: 'Buscar',
++      searchNone: 'No hay precios para estas fechas en los datos disponibles – amplía el margen o añade una búsqueda especial en config.json.', searchCount: (n, a, b, c) => `Ida ${a} · vuelta ${b} · ${n} más baratos de ${c} viajes posibles`, sortDate: 'por fecha', sortPrice: 'por precio', cheapestAll: 'más barato',
+       searchHint: 'Los billetes de ida y vuelta solo existen para las fechas consultadas en la actualización; si no, cuentan los billetes de ida.',
+       errBanner: (t, msg, d) => `⛔ <b>Falló la última actualización</b> (${t}): ${msg} Se muestran los precios del ${d}.`,
+       oldBanner: (n) => `⚠ Los precios tienen ${n} días – la actualización diaria no se ejecutó. “Fluege aktualisieren” en el escritorio trae precios nuevos.`,
+@@ -804,6 +802,7 @@ tr.week { cursor: pointer; }
+ 
+   // ---------- Eigene Suche (nur in den vorhandenen Daten, keine neuen Abfragen)
+   let srch = null;
++  const SEARCH_MAX = 15;  // höchstens so viele Treffer anzeigen (die günstigsten)
+   function renderSearchForm() {
+     const g = new Date(D.generated);
+     $('searchSub').textContent = L().searchSub(g.toLocaleString(L().locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }));
+@@ -813,18 +812,14 @@ tr.week { cursor: pointer; }
+     $('sFrom').min = min; $('sFrom').max = max;  // Hinflug im Vorschau-Zeitraum
+     $('sTo').min = addDays(min, 1); $('sTo').max = addDays(max, Math.max(...D.trips.map((t) => t.maxNights)));  // Rückflug auch danach
+     if (!$('sFrom').value) { $('sFrom').value = min; $('sTo').value = addDays(D.today, 14); }
+-    $('sNmin').placeholder = L().any; $('sNmax').placeholder = L().any;  // Nächte optional
+   }
+   $('searchForm').onsubmit = (e) => {
+     e.preventDefault();
+     let a = $('sFrom').value, b = $('sTo').value;
+-    let n1 = $('sNmin').value === '' ? 1 : +$('sNmin').value;   // leer = beliebig
+-    let n2 = $('sNmax').value === '' ? 28 : +$('sNmax').value;
+     if (!a || !b) return;
+     if (b < a) [a, b] = [b, a];
+-    if (n2 < n1) [n1, n2] = [n2, n1];
+     if (b === a) b = addDays(a, 1);  // mindestens 1 Nacht
+-    srch = { trip: $('sTrip').value, a, b, n1: Math.max(1, n1), n2: Math.min(28, n2), sort: srch ? srch.sort : 'date' };
++    srch = { trip: $('sTrip').value, a, b, flex: +$('sFlex').value || 0, sort: srch ? srch.sort : 'price' };
+     renderSearch();
+     $('searchCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+   };
+@@ -834,19 +829,26 @@ tr.week { cursor: pointer; }
+     $('searchCard').style.display = srch ? '' : 'none';
+     if (!srch) { $('searchOut').innerHTML = ''; return; }
+     const t = D.trips.find((x) => x.id === srch.trip);
+-    // Ganze Reise im Zeitraum: Hinflug ab srch.a, Rückflug spätestens srch.b (Wochentag-Filter oben gilt hier nicht)
++    // Hinflug um srch.a, Rückflug um srch.b, je ± srch.flex Tage; Nächte ergeben sich daraus (Wochentag-Filter oben gilt hier nicht)
++    const first = addDays(D.today, 1), f = srch.flex;
++    const span = (x) => `${fmt(addDays(x, -f), { day: '2-digit', month: '2-digit' })}–${fmt(addDays(x, f), { day: '2-digit', month: '2-digit' })}`;
+     const all = [];
+-    for (let d = srch.a; d < srch.b; d = addDays(d, 1)) {
+-      for (let n = srch.n1; n <= srch.n2 && addDays(d, n) <= srch.b; n++) { const o = option(t, d, n); if (o) all.push(o); }
++    for (let i = -f; i <= f; i++) {
++      const d = addDays(srch.a, i);
++      if (d < first) continue;
++      for (let j = -f; j <= f; j++) {
++        const n = Math.round((parse(addDays(srch.b, j)) - parse(d)) / 864e5);
++        if (n < 1) continue;
++        const o = option(t, d, n); if (o) all.push(o);
++      }
+     }
+-    const byDay = new Map();
+-    for (const o of all) { const c = byDay.get(o.dep); if (!c || o.total < c.total) byDay.set(o.dep, o); }
+-    const top = [...byDay.values()].sort(srch.sort === 'price' ? (x, y) => x.total - y.total : (x, y) => (x.dep < y.dep ? -1 : 1));
++    const top = all.sort((x, y) => x.total - y.total).slice(0, SEARCH_MAX)
++      .sort(srch.sort === 'price' ? (x, y) => x.total - y.total : (x, y) => (x.dep < y.dep ? -1 : x.dep > y.dep ? 1 : x.ret < y.ret ? -1 : 1));
+     const low = Math.min(...top.map((o) => o.total));
+     const sortBtns = `<span class="seg" id="sSort" style="margin-left:8px">${[['date', L().sortDate], ['price', L().sortPrice]].map(([k, l]) => `<button type="button" data-s="${k}" aria-pressed="${srch.sort === k}">${l}</button>`).join('')}</span>`;
+-    $('searchOut').innerHTML = top.length ? `<div class="sub" style="margin-bottom:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px">${esc(L().searchCount(top.length, all.length, `${fmt(srch.a)} – ${fmt(srch.b)}`))}${sortBtns}</div>
++    $('searchOut').innerHTML = top.length ? `<div class="sub" style="margin-bottom:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px">${esc(f ? L().searchCount(top.length, span(srch.a), span(srch.b), all.length) : L().searchCount(top.length, fmt(srch.a), fmt(srch.b), all.length))}${sortBtns}</div>
+       <table>${top.map((o) => `<tr><td class="num" style="text-align:left"><b>${eur(o.total)}</b>${o.total === low ? ` <span class="tag best">${L().cheapestAll}</span>` : ''}${isHit(t, o) ? ' <span class="tag hit">✓</span>' : ''}<div>${kindTag(o)}</div></td>
+-        <td>${fmt(o.dep)} → ${fmt(o.ret)}<div class="sub">${L().nightsN(o.n)}</div></td>
++        <td><b>${fmt(o.dep)} → ${fmt(o.ret)}</b><div class="sub">${L().nightsN(o.n)}</div></td>
+         <td class="hide-sm">${outHtml(o)}</td><td class="hide-sm">${retHtml(o)}</td>
+         <td><a class="lnk" href="${esc(gfRound(t, o))}" target="_blank" rel="noopener">${L().view}</a></td></tr>`).join('')}</table>
+       <div class="note" style="margin-top:8px">${L().searchHint}</div>` : `<div class="muted">${L().searchNone}</div>`;
