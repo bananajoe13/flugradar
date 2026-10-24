@@ -1,0 +1,57 @@
+{
+  "_hinweis": "Preise in EUR, 1 Erwachsener, Economy. Aenderungen wirken beim naechsten Abruf.",
+
+  "horizonDays": 122,
+  "maxStops": 1,
+  "workers": 3,
+  "delaySeconds": 1.2,
+
+  "_trips": "Reisearten. home = Startflughafen, dest = Zielflughaefen (mehrere = Alternativen, frei kombinierbar). nightGroups = Auswahlknoepfe im Dashboard. alertBelow = Preisalarm (Hin+Rueck inkl. Handgepaeck).",
+  "trips": [
+    { "id": "wien", "label": "Hamburg ⇄ Wien", "home": "HAM", "homeName": "Hamburg", "dest": ["VIE"], "destName": "Wien",
+      "labels": { "en": "Hamburg ⇄ Vienna", "es": "Hamburgo ⇄ Viena" }, "destNames": { "en": "Vienna", "es": "Viena" },
+      "minNights": 3, "maxNights": 5, "nightGroups": [[3, 3], [4, 4], [5, 5]], "alertBelow": 120, "roundTrip": true },
+    { "id": "madrid", "label": "Hamburg ⇄ Madrid", "home": "HAM", "homeName": "Hamburg", "dest": ["MAD"], "destName": "Madrid",
+      "labels": { "en": "Hamburg ⇄ Madrid", "es": "Hamburgo ⇄ Madrid" },
+      "minNights": 3, "maxNights": 5, "nightGroups": [[3, 3], [4, 4], [5, 5]], "alertBelow": 120, "roundTrip": true },
+    { "id": "besuch", "label": "Besuch Madrid → Hamburg", "home": "MAD", "homeName": "Madrid", "dest": ["HAM"], "destName": "Hamburg",
+      "labels": { "en": "Visit Madrid → Hamburg", "es": "Visita Madrid → Hamburgo" }, "destNames": { "es": "Hamburgo" },
+      "minNights": 3, "maxNights": 28, "nightGroups": [[3, 7], [8, 14], [15, 28]], "alertBelow": 120, "roundTrip": true }
+  ],
+
+  "_extraSearches": "Sonderabfragen ausserhalb der 4 Monate (z.B. Ostern). depFrom/depTo = moeglicher Abflugzeitraum. Eintraege loeschen, wenn vorbei.",
+  "extraSearches": [
+    { "label": "Ostern 2027", "labels": { "en": "Easter 2027", "es": "Semana Santa 2027" }, "trip": "wien", "depFrom": "2027-03-24", "depTo": "2027-03-28", "minNights": 3, "maxNights": 5 }
+  ],
+
+  "_travelpayouts": "Optionale 2. Quelle (Aviasales/Travelpayouts). Kostenlosen Token unter https://www.travelpayouts.com/ -> Profil -> API-Token holen und hier eintragen.",
+  "travelpayoutsToken": "",
+
+  "_bagCorrection": "Handgepaeck-Aufpreis pro Flug, den Google als 'inklusive' meldet, die Airline beim Buchen aber verlangt (eigene Beobachtung).",
+  "bagCorrection": {
+    "Austrian": 20,
+    "Iberia": 20,
+    "Iberia Express": 20
+  },
+
+  "_bagFees": "Nur noch Reserve: Google Flights rechnet die echten Handgepaeck-Gebuehren selbst ein (Gepaeckfilter). Diese Schaetzwerte greifen nur, wenn eine Quelle (z.B. Aviasales) kein Handgepaeck enthaelt.",
+  "bagFees": {
+    "Eurowings": 20,
+    "Austrian": 30,
+    "Lufthansa": 30,
+    "Iberia": 25,
+    "Iberia Express": 25,
+    "Vueling": 20,
+    "Ryanair": 22,
+    "easyJet": 22,
+    "Wizz Air": 30,
+    "Air Europa": 25,
+    "KLM": 30,
+    "Air France": 30,
+    "SWISS": 30,
+    "Brussels Airlines": 30,
+    "SAS": 30,
+    "Condor": 25,
+    "_default": 30
+  }
+}
