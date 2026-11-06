@@ -1,0 +1,31 @@
+# GitHub Actions: Live-Pruefung der Hin+Rueck-Tickets (Knopf auf der Online-Seite).
+# Wird von publish.py als .github/workflows/live.yml hochgeladen. Auftrag und Ergebnis sind verschluesselt.
+name: live
+on:
+  workflow_dispatch:
+    inputs:
+      req:
+        description: verschluesselter Auftrag
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: live
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install --quiet requests cryptography
+      - run: python live/live_action.py
+        env:
+          FLUGRADAR_PASSWORD: ${{ secrets.FLUGRADAR_PASSWORD }}
+          REQ: ${{ inputs.req }}
+          FLUGRADAR_QUIET: "1"
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
